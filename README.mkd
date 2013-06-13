@@ -1,8 +1,8 @@
-# libscfg
+# libhashtable
 
 ## Description
 
-`libscfg` is a small C library providing a hash table structure.
+`libhashtable` is a small C library providing a hash table structure.
 
 More information can be found in the documentation (`doc/manual.mkd`).
 Use `make doc` to build a HTML documentation (requires `pandoc`).
