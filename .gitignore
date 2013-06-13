@@ -1,0 +1,7 @@
+*.a
+src/*.o
+
+doc/*.html
+
+tests/bench-wordcount
+tests/main
