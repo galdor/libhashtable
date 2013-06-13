@@ -1,0 +1,279 @@
+% libhashtable
+% Nicolas Martyanoff
+
+# Introduction
+
+**TODO**
+
+# License
+
+`libhashtable` is released under the ISC license. See the `LICENSE` file for
+more information. `libhashtable` is free software as defined by the
+OSI ^[Open Source Initiative: <http://opensource.org>].
+
+# Interface
+
+The name of all symbols exported by the library is prefixed by `ht_`.
+
+## `ht_get_error`
+
+~~~ {.c}
+    const char *ht_get_error(void);
+~~~
+
+Return the current error string. If there is no current error string, an empty
+string is returned. The character string referenced by the returned pointer
+can be modified by any function of the library.
+
+When a function of the library fails, an error string is set.
+
+## `ht_memory_allocator`
+
+~~~ {.c}
+    struct ht_memory_allocator {
+        void *(*malloc)(size_t sz);
+        void (*free)(void *ptr);
+        void *(*calloc)(size_t nb, size_t sz);
+        void *(*realloc)(void *ptr, size_t sz);
+    };
+~~~
+
+This structure contains the functions used for memory allocation in the
+library.
+
+## `ht_set_memory_allocator`
+~~~ {.c}
+     void ht_set_memory_allocator(const struct ht_memory_allocator *allocator);
+~~~
+
+Set the memory allocator used by all functions in the library. The library
+assumes that if the `malloc`, `calloc` or `realloc` functions return NULL,
+then allocation has failed and the value of `errno` indicates the cause of the
+failure.
+
+## `ht_default_memory_allocator`
+~~~ {.c}
+    struct ht_memory_allocator *ht_default_memory_allocator;
+~~~
+
+A pointer to the default memory allocator used by the library.
+
+## `ht_hash_func`
+~~~ {.c}
+    typedef uint32_t (*ht_hash_func)(const void *key);
+~~~
+
+A pointer on a hash function.
+
+## `ht_equal_func`
+~~~ {.c}
+    typedef bool (*ht_equal_func)(const void *k1, const void *k2);
+~~~
+
+A pointer on an equality function. An equality function returns `true` if `k1`
+and `k2` are the same or `false` if they are not.
+
+## `ht_table_new`
+~~~ {.c}
+    struct ht_table *ht_table_new(ht_hash_func hash_func,
+                                  ht_equal_func equal_func);
+~~~
+
+Create and return a new hash table. If the creation failed, NULL is returned.
+`hash_func` is the function which will be used by the table to hash the keys.
+`equal_func` is the function which will be used to test whether two keys are
+equal or not.
+
+## `ht_table_delete`
+~~~ {.c}
+    void ht_table_delete(struct ht_table *table);
+~~~
+
+Delete a hash table, releasing any memory that was allocated for it.
+
+If `table` is null, no action is performed.
+
+The content of the memory referenced by `table` is undefined after
+`ht_table_delete` has been called.
+
+## `ht_table_get_nb_entries`
+~~~ {.c}
+    size_t ht_table_get_nb_entries(const struct ht_table *table);
+~~~
+
+Return the number of entries currently stored in a hash table.
+
+## `ht_table_is_empty`
+~~~ {.c}
+    bool ht_table_is_empty(const struct ht_table *table);
+~~~
+
+Return `true` if a hash table is empty or `false` else.
+
+## `ht_table_clear`
+~~~ {.c}
+    void ht_table_clear(struct ht_table *table);
+~~~
+
+Remove all the entries from a hash table.
+
+## `ht_table_insert`
+~~~ {.c}
+    int ht_table_insert(struct ht_table *table, void *key, void *value);
+~~~
+
+Insert a new entry or update an existing one in a hash table.
+
+If an entry with a key equal to `key` already exists in the table, its value
+is set to `value`. If not, a new entry is inserted.
+
+`ht_table_insert` returns `1` if a new entry was inserted, `0` if an existing
+entry was updated and `-1` if the insertion failed.
+
+## `ht_table_remove`
+~~~ {.c}
+    int ht_table_remove(struct ht_table *table, const void *key);
+~~~
+
+Remove an entry from a hash table.
+
+If the table does not contain any entry with this key, no action is performed.
+
+`ht_table_remove` returns 1 if an entry was removed or 0 if not.
+
+## `ht_table_get`
+~~~ {.c}
+    int ht_table_get(struct ht_table *table, const void *key, void **value);
+~~~
+
+Retrieve the entry associated with a key in a hash table and copy its value
+to the pointer referenced by `value`.
+
+`ht_table_get` returns `1` if an entry with this key was found or `0` if not.
+
+If no entry was found with this key, the pointer referenced by `value` is not
+modified.
+
+## `ht_table_contains`
+~~~ {.c}
+    bool ht_table_contains(struct ht_table *table, const void *key);
+~~~
+
+Return `true` if a hash table contains an entry or `false` if it does not.
+
+## `ht_table_print`
+~~~ {.c}
+    void ht_table_print(struct ht_table *table, FILE *file);
+~~~
+
+Print the content of a hash table to a file. No guarantee is provided
+regarding to the format of the output.
+
+## `ht_table_iterate`
+~~~ {.c}
+    struct ht_table_iterator *ht_table_iterate(struct ht_table *table);
+~~~
+
+Create and return an object used to iterate through the entries of a hash
+table.
+
+The iterator is valid as long as no entry is added or removed to the hash
+table. The behavior of an iterator when it is not valid is undefined.
+
+## `ht_table_iterator_delete`
+~~~ {.c}
+    void ht_table_iterator_delete(struct ht_table_iterator *it);
+~~~
+
+Delete an iterator.
+
+If `it` is null, no action is performed.
+
+The content of the memory referenced by `it` is undefined after
+`ht_table_iterator_delete` has been called.
+
+## `ht_table_iterator_get_next`
+~~~ {.c}
+    int ht_table_iterator_get_next(struct ht_table_iterator *it,
+                                   void **key, void **value);
+~~~
+
+Advance iterator. If a next entry is found in the hash table, copy its key and
+value to the pointers referenced by `key` and `value` and return 1.
+
+If the iterator has reached the end of the hash table, the pointers referenced
+by `key` and `value` are not modified and 0 is returned.
+
+## `ht_table_iterator_remove`
+~~~ {.c}
+    void ht_table_iterator_remove(struct ht_table_iterator *it);
+~~~
+
+Remove the hash table entry an iterator is currently pointing on.
+
+If the iterator is not currently pointing on an entry, no action is performed.
+
+## `ht_table_iterator_set_value`
+~~~ {.c}
+    void ht_table_iterator_set_value(struct ht_table_iterator *it,
+                                     void *value);
+~~~
+
+Modify the value of the hash table entry an iterator is currently pointing on.
+
+If the iterator is not currently pointing on an entry, no action is performed.
+
+## `ht_hash_int32`
+~~~ {.c}
+    uint32_t ht_hash_int32(const void *key);
+~~~
+
+A hash function to use for hash tables whose keys are 32 bit integers.
+
+## `ht_equal_int32`
+~~~ {.c}
+    bool ht_equal_int32(const void *k1, const void *k2);
+~~~
+
+An equality function to use for hash tables whose keys are 32 bit integers.
+
+## `ht_hash_string`
+~~~ {.c}
+    uint32_t ht_hash_string(const void *key);
+~~~
+
+A hash function to use for hash tables whose keys are character strings.
+
+## `ht_equal_string`
+~~~ {.c}
+    bool ht_equal_string(const void *k1, const void *k2);
+~~~
+
+An equality function to use for hash tables whose keys are character strings.
+
+## `HT_INT32_TO_POINTER`
+~~~ {.c}
+    #define HT_INT32_TO_POINTER(i_) ((void *)(intptr_t)(int32_t)(i_))
+~~~
+
+A macro to convert a 32 bit integer to a pointer value. It can be used when
+the keys or values of a hash tables are 32 bit integers.
+
+## `HT_POINTER_TO_IN32`
+~~~ {.c}
+    #define HT_POINTER_TO_INT32(p_) ((int32_t)(intptr_t)(p_))
+~~~
+
+A macro to convert a pointer value to a 32 bit integer. It can be used when
+the keys or values of a hash tables are 32 bit integers.
+
+# Test suite
+
+`libhashtable` includes a test suite which is ran by executing the binary
+`tests/main`.
+
+
+# Contact
+
+If you have found a bug, have an idea or a question, email me at
+<khaelin@gmail.com>.
