@@ -91,7 +91,7 @@ coverage:
 	genhtml -o coverage -t libhashtable /tmp/libhashtable.info
 	rm /tmp/libhashtable.info
 
-install: all
+install: lib
 	mkdir -p $(libdir) $(incdir)
 	install -m 644 $(libhashtable_LIB) $(libdir)
 	install -m 644 $(libhashtable_INC) $(incdir)
