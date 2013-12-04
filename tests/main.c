@@ -104,25 +104,29 @@ TEST_DEFINE(insert) {
 
 TEST_DEFINE(insert2) {
     struct ht_table *table;
-    const char *str, *value;
+    const char *str, *key, *value;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
 
-    ht_table_insert2(table, "a", "abc", (void **)&value);
+    ht_table_insert2(table, "a", "abc", (void **)&key, (void **)&value);
+    TEST_ASSERT(key == NULL,
+                "invalid old key for entry 'a'");
     TEST_ASSERT(value == NULL,
-                "invalid value for entry 'a'");
+                "invalid old value for entry 'a'");
 
     TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
                 "cannot fetch entry 'a'");
     TEST_ASSERT(strcmp(str, "abc") == 0,
                 "invalid value for entry 'a'");
 
-    ht_table_insert2(table, "a", "def", (void **)&value);
+    ht_table_insert2(table, "a", "def", (void **)&key, (void **)&value);
 
     TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
                 "cannot fetch entry 'a'");
     TEST_ASSERT(strcmp(str, "def") == 0,
                 "invalid value for entry 'a'");
+    TEST_ASSERT(strcmp(key, "a") == 0,
+                "invalid old key for entry 'a'");
     TEST_ASSERT(strcmp(value, "abc") == 0,
                 "invalid old value for entry 'a'");
 

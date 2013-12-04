@@ -133,19 +133,19 @@ entry was updated or `-1` if the insertion failed.
 ## `ht_table_insert2`
 ~~~ {.c}
     int ht_table_insert2(struct ht_table *table, void *key, void *value,
-                         void **old_value);
+                         void **old_key, void **old_value);
 ~~~
 
 Insert a new entry or update an existing one in a hash table.
 
 If an entry with a key equal to `key` already exists in the table, its value
-is set to `value`. In that case, a pointer to the value of the entry being
-replaced is stored in the pointer referenced by `old_value` if `old_value` is
-not null.
+is set to `value`. In that case, pointers to the key and value of the entry
+being replaced are stored in the pointers referenced by `old_key` and
+`old_value` if `old_key` and `old_value` are not null.
 
 If there is no entry with a key equal to `key` in the table, a new entry is
-inserted, and the pointer referenced by `old_value` is set to `NULL` if
-`old_value` is not null.
+inserted, and the pointers referenced by `old_key` and `old_value` are set to
+`NULL` if `old_key` and `old_value` are not null.
 
 `ht_table_insert2` returns `1` if a new entry was inserted, `0` if an existing
 entry was updated or `-1` if the insertion failed.
