@@ -133,7 +133,7 @@ entry was updated or `-1` if the insertion failed.
 ## `ht_table_insert2`
 ~~~ {.c}
     int ht_table_insert2(struct ht_table *table, void *key, void *value,
-                         void **old_value) {
+                         void **old_value);
 ~~~
 
 Insert a new entry or update an existing one in a hash table.

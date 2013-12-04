@@ -85,6 +85,7 @@ clean:
 	$(RM) $(tests_BIN) $(wildcard tests/*.o)
 	$(RM) $(wildcard **/*.gc??)
 	$(RM) -r coverage
+	$(RM) -r $(doc_HTML)
 
 coverage:
 	lcov -o /tmp/libhashtable.info -c -d . -b .
