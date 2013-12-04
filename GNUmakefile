@@ -87,7 +87,7 @@ clean:
 	$(RM) -r coverage
 
 coverage:
-	lcov -o /tmp/libhashtable.info -c -d .
+	lcov -o /tmp/libhashtable.info -c -d . -b .
 	genhtml -o coverage -t libhashtable /tmp/libhashtable.info
 	rm /tmp/libhashtable.info
 

@@ -128,7 +128,27 @@ If an entry with a key equal to `key` already exists in the table, its value
 is set to `value`. If not, a new entry is inserted.
 
 `ht_table_insert` returns `1` if a new entry was inserted, `0` if an existing
-entry was updated and `-1` if the insertion failed.
+entry was updated or `-1` if the insertion failed.
+
+## `ht_table_insert2`
+~~~ {.c}
+    int ht_table_insert2(struct ht_table *table, void *key, void *value,
+                         void **old_value) {
+~~~
+
+Insert a new entry or update an existing one in a hash table.
+
+If an entry with a key equal to `key` already exists in the table, its value
+is set to `value`. In that case, a pointer to the value of the entry being
+replaced is stored in the pointer referenced by `old_value` if `old_value` is
+not null.
+
+If there is no entry with a key equal to `key` in the table, a new entry is
+inserted, and the pointer referenced by `old_value` is set to `NULL` if
+`old_value` is not null.
+
+`ht_table_insert2` returns `1` if a new entry was inserted, `0` if an existing
+entry was updated or `-1` if the insertion failed.
 
 ## `ht_table_remove`
 ~~~ {.c}
@@ -167,7 +187,7 @@ Return `true` if a hash table contains an entry or `false` if it does not.
 ~~~
 
 Print the content of a hash table to a file. No guarantee is provided
-regarding to the format of the output.
+regarding the format of the output.
 
 ## `ht_table_iterate`
 ~~~ {.c}
@@ -198,8 +218,8 @@ The content of the memory referenced by `it` is undefined after
                                    void **key, void **value);
 ~~~
 
-Advance iterator. If a next entry is found in the hash table, copy its key and
-value to the pointers referenced by `key` and `value` and return 1.
+Advance an iterator. If a next entry is found in the hash table, copy its key
+and value to the pointers referenced by `key` and `value` and return 1.
 
 If the iterator has reached the end of the hash table, the pointers referenced
 by `key` and `value` are not modified and 0 is returned.

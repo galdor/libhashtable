@@ -149,6 +149,32 @@ ht_table_insert(struct ht_table *table, void *key, void *value) {
 }
 
 int
+ht_table_insert2(struct ht_table *table, void *key, void *value,
+                 void **old_value) {
+    struct ht_table_entry *entry;
+
+    entry = ht_table_get_entry(table, key);
+    if (entry) {
+        uint32_t hash;
+
+        if (old_value)
+            *old_value = entry->value;
+
+        hash = table->hash_func(key);
+        if (hash == HT_UNUSED_HASH)
+            hash++;
+
+        return ht_table_insert_in(table, table->buckets, table->buckets_sz,
+                                  key, value, hash, false);
+    } else {
+        if (old_value)
+            *old_value = NULL;
+
+        return ht_table_insert(table, key, value);
+    }
+}
+
+int
 ht_table_remove(struct ht_table *table, const void *key) {
     struct ht_table_entry *entry;
 
