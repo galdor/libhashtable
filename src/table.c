@@ -526,8 +526,7 @@ ht_table_insert_in(struct ht_table *table,
         bucket->sz = sz;
     }
 
-    if (new_entry_inserted)
-        entry->key = key;
+    entry->key = key;
     entry->value = value;
     entry->hash = hash;
 
