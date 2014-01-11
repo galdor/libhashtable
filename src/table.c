@@ -274,8 +274,10 @@ ht_table_iterator_get_next(struct ht_table_iterator *it,
         entry = bucket->entries + it->entry;
 
         if (HT_TABLE_ENTRY_IS_USED(entry)) {
-            *key = entry->key;
-            *value = entry->value;
+            if (key)
+                *key = entry->key;
+            if (value)
+                *value = entry->value;
             break;
         }
 
