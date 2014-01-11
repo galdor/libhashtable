@@ -69,7 +69,11 @@ ht_set_error(const char *fmt, ...) {
 
 void
 ht_set_memory_allocator(const struct ht_memory_allocator *allocator) {
-    ht_allocator = *allocator;
+    if (allocator) {
+        ht_allocator = *allocator;
+    } else {
+        ht_allocator = ht_default_allocator;
+    }
 }
 
 void *

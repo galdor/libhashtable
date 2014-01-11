@@ -51,6 +51,9 @@ assumes that if the `malloc`, `calloc` or `realloc` functions return NULL,
 then allocation has failed and the value of `errno` indicates the cause of the
 failure.
 
+If `allocator` is null, the default memory allocator
+(`ht_default_memory_allocator`) is used.
+
 ## `ht_default_memory_allocator`
 ~~~ {.c}
     struct ht_memory_allocator *ht_default_memory_allocator;
