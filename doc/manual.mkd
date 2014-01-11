@@ -154,6 +154,9 @@ inserted, and the pointers referenced by `old_key` and `old_value` are set to
 `ht_table_insert2` returns `1` if a new entry was inserted, `0` if an existing
 entry was updated or `-1` if the insertion failed.
 
+Note that `old_key` and `old_value` are subject to the same warning than
+`value` in `ht_table_get`.
+
 ## `ht_table_remove`
 ~~~ {.c}
     int ht_table_remove(struct ht_table *table, const void *key);
@@ -177,6 +180,13 @@ to the pointer referenced by `value`.
 
 If no entry was found with this key, the pointer referenced by `value` is not
 modified.
+
+Note that values are stored as pointers (`void *`). When values are not
+pointers (for example integers, using `HT_INT32_TO_POINTER`), `ht_table_get`
+will still write the whole pointer to the memory referenced by `value`.
+Therefore the caller must make sure that the memory referenced by `value` is
+at least of the size of a pointer. For example, when storing integers, one
+should use `intptr_t`.
 
 ## `ht_table_contains`
 ~~~ {.c}
@@ -223,10 +233,14 @@ The content of the memory referenced by `it` is undefined after
 ~~~
 
 Advance an iterator. If a next entry is found in the hash table, copy its key
-and value to the pointers referenced by `key` and `value` and return 1.
+and value to the pointers referenced by `key` and `value` and return 1. `key`
+and/or `value` can be null.
 
 If the iterator has reached the end of the hash table, the pointers referenced
 by `key` and `value` are not modified and 0 is returned.
+
+Note that `key` and `value` are subject to the same warning than `value` in
+`ht_table_get`.
 
 ## `ht_table_iterator_remove`
 ~~~ {.c}
