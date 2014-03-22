@@ -157,19 +157,15 @@ ht_table_insert2(struct ht_table *table, void *key, void *value,
 
     entry = ht_table_get_entry(table, key);
     if (entry) {
-        uint32_t hash;
-
         if (old_key)
             *old_key = entry->key;
         if (old_value)
             *old_value = entry->value;
 
-        hash = table->hash_func(key);
-        if (hash == HT_UNUSED_HASH)
-            hash++;
+        entry->key = key;
+        entry->value = value;
 
-        return ht_table_insert_in(table, table->buckets, table->buckets_sz,
-                                  key, value, hash, false);
+        return 0;
     } else {
         if (old_key)
             *old_key = NULL;
