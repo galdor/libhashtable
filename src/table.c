@@ -98,6 +98,8 @@ ht_table_delete(struct ht_table *table) {
         ht_free(table->buckets[i].entries);
 
     ht_free(table->buckets);
+
+    memset(table, 0, sizeof(struct ht_table));
     ht_free(table);
 }
 
@@ -238,6 +240,7 @@ ht_table_iterator_delete(struct ht_table_iterator *it) {
     if (!it)
         return;
 
+    memset(it, 0, sizeof(struct ht_table_iterator));
     ht_free(it);
 }
 
