@@ -51,6 +51,8 @@ int ht_table_insert(struct ht_table *table, void *key, void *value);
 int ht_table_insert2(struct ht_table *table, void *key, void *value,
                      void **old_key, void **old_value);
 int ht_table_remove(struct ht_table *table, const void *key);
+int ht_table_remove2(struct ht_table *table, const void *key,
+                     void **old_key, void **old_value);
 int ht_table_get(struct ht_table *table, const void *key, void **value);
 bool ht_table_contains(struct ht_table *table, const void *key);
 void ht_table_print(struct ht_table *table, FILE *file);

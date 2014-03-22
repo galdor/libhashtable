@@ -168,6 +168,22 @@ If the table does not contain any entry with this key, no action is performed.
 
 `ht_table_remove` returns 1 if an entry was removed or 0 if not.
 
+## `ht_table_remove2`
+~~~ {.c}
+    int ht_table_remove2(struct ht_table *table, const void *key,
+                         void **old_key, void **old_value);
+~~~
+
+Remove an entry from a hash table.
+
+If the table does not contain any entry with this key, no action is performed.
+
+If an entry was found and removed, its key is stored in the pointer referenced
+by `old_key` is `old_key` is not null, and its value is stored in the pointer
+referenced by `old_value` if `old_value` is not null.
+
+`ht_table_remove` returns 1 if an entry was removed or 0 if not.
+
 ## `ht_table_get`
 ~~~ {.c}
     int ht_table_get(struct ht_table *table, const void *key, void **value);

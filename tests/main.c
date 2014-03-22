@@ -167,6 +167,28 @@ TEST_DEFINE(remove) {
     TEST_SUCCEED();
 }
 
+TEST_DEFINE(remove2) {
+    struct ht_table *table;
+    const char *key, *value;
+
+    table = ht_table_new(ht_hash_string, ht_equal_string);
+    if (!table)
+        TEST_ERROR("cannot create table: %s", ht_get_error());
+
+    ht_table_insert(table, "a", "abc");
+    TEST_ASSERT(ht_table_remove2(table, "a",
+                                 (void **)&key, (void **)&value) == 1,
+                "invalid return value when removing an existing entry");
+    TEST_ASSERT(strcmp(key, "a") == 0,
+                "invalid old key for entry 'a'");
+    TEST_ASSERT(strcmp(value, "abc") == 0,
+                "invalid old value for entry 'a'");
+
+    ht_table_delete(table);
+
+    TEST_SUCCEED();
+}
+
 TEST_DEFINE(clear) {
     struct ht_table *table;
 
@@ -348,6 +370,7 @@ static struct {
     TEST_CASE(insert),
     TEST_CASE(insert2),
     TEST_CASE(remove),
+    TEST_CASE(remove2),
     TEST_CASE(clear),
     TEST_CASE(resize),
     TEST_CASE(iterate),

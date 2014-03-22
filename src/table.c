@@ -178,11 +178,22 @@ ht_table_insert2(struct ht_table *table, void *key, void *value,
 
 int
 ht_table_remove(struct ht_table *table, const void *key) {
+    return ht_table_remove2(table, key, NULL, NULL);
+}
+
+int
+ht_table_remove2(struct ht_table *table, const void *key,
+                 void **old_key, void **old_value) {
     struct ht_table_entry *entry;
 
     entry = ht_table_get_entry(table, key);
     if (!entry)
         return 0;
+
+    if (old_key)
+        *old_key = entry->key;
+    if (old_value)
+        *old_value = entry->value;
 
     entry->key = NULL;
     entry->value = NULL;
