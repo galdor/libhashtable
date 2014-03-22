@@ -213,7 +213,7 @@ ht_table_get(struct ht_table *table, const void *key, void **value) {
 
 bool
 ht_table_contains(struct ht_table *table, const void *key) {
-    return ht_table_get_entry(table, key);
+    return ht_table_get_entry(table, key) != NULL;
 }
 
 struct ht_table_iterator *
