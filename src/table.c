@@ -53,13 +53,11 @@ struct ht_table_iterator {
     size_t entry;
 };
 
-static int ht_table_resize(struct ht_table *table, size_t sz);
-static int ht_table_insert_in(struct ht_table *table,
-                              struct ht_table_bucket *buckets, size_t sz,
-                              void *key, void *value, uint32_t hash,
-                              bool is_resizing);
-static struct ht_table_entry *ht_table_entry(struct ht_table *table,
-                                             const void *key);
+static int ht_table_resize(struct ht_table *, size_t);
+static int ht_table_insert_in(struct ht_table *,
+                              struct ht_table_bucket *, size_t,
+                              void *, void *, uint32_t, bool);
+static struct ht_table_entry *ht_table_entry(struct ht_table *, const void *);
 
 
 struct ht_table *

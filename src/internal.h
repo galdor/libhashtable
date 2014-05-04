@@ -19,12 +19,12 @@
 
 #include <stdlib.h>
 
-void ht_set_error(const char *fmt, ...)
+void ht_set_error(const char *, ...)
     __attribute__((format(printf, 1, 2)));
 
-void *ht_malloc(size_t sz);
-void ht_free(void *ptr);
-void *ht_calloc(size_t nb, size_t sz);
-void *ht_realloc(void *ptr, size_t sz);
+void *ht_malloc(size_t);
+void ht_free(void *);
+void *ht_calloc(size_t, size_t);
+void *ht_realloc(void *, size_t);
 
 #endif

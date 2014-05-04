@@ -74,6 +74,7 @@ doc: $(doc_HTML)
 $(libhashtable_LIB): $(libhashtable_OBJ)
 	$(AR) cr $@ $(libhashtable_OBJ)
 
+$(tests_OBJ): $(libhashtable_LIB) $(libhashtable_INC)
 tests/%: tests/%.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
