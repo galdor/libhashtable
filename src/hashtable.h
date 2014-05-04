@@ -44,7 +44,7 @@ void ht_set_memory_allocator(const struct ht_memory_allocator *allocator);
 struct ht_table *ht_table_new(ht_hash_func hash_func,
                               ht_equal_func equal_func);
 void ht_table_delete(struct ht_table *table);
-size_t ht_table_get_nb_entries(const struct ht_table *table);
+size_t ht_table_nb_entries(const struct ht_table *table);
 bool ht_table_is_empty(const struct ht_table *table);
 void ht_table_clear(struct ht_table *table);
 int ht_table_insert(struct ht_table *table, void *key, void *value);
@@ -59,8 +59,8 @@ void ht_table_print(struct ht_table *table, FILE *file);
 
 struct ht_table_iterator *ht_table_iterate(struct ht_table *table);
 void ht_table_iterator_delete(struct ht_table_iterator *it);
-int ht_table_iterator_get_next(struct ht_table_iterator *it,
-                               void **key, void **value);
+int ht_table_iterator_next(struct ht_table_iterator *it,
+                           void **key, void **value);
 void ht_table_iterator_remove(struct ht_table_iterator *it);
 void ht_table_iterator_set_value(struct ht_table_iterator *it,
                                  void *value);

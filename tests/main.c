@@ -64,13 +64,13 @@ TEST_DEFINE(insert) {
 
     ht_table_insert(table, "a", "abc");
 
-    TEST_ASSERT(ht_table_get_nb_entries(table) == 1,
+    TEST_ASSERT(ht_table_nb_entries(table) == 1,
                 "invalid number of entries after 1 insertion");
 
     ht_table_insert(table, "d", "def");
     ht_table_insert(table, "g", "ghi");
 
-    TEST_ASSERT(ht_table_get_nb_entries(table) == 3,
+    TEST_ASSERT(ht_table_nb_entries(table) == 3,
                 "invalid number of entries after 3 insertions");
 
     TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
@@ -90,7 +90,7 @@ TEST_DEFINE(insert) {
     TEST_ASSERT(strcmp(str, "foo") == 0,
                 "invalid value for entry 'g' after update");
 
-    TEST_ASSERT(ht_table_get_nb_entries(table) == 3,
+    TEST_ASSERT(ht_table_nb_entries(table) == 3,
                 "invalid number of entries after entry update");
 
     TEST_ASSERT(ht_table_get(table, "k", (void **)&str) == 0,
@@ -231,7 +231,7 @@ TEST_DEFINE(resize) {
         ht_table_remove(table, HT_INT32_TO_POINTER(i));
     }
 
-    TEST_ASSERT(ht_table_get_nb_entries(table) == nb_entries - nb_removed,
+    TEST_ASSERT(ht_table_nb_entries(table) == nb_entries - nb_removed,
                 "invalid number of entries after resize");
 
     for (size_t i = 0; i < nb_entries; i++) {
@@ -276,7 +276,7 @@ TEST_DEFINE(iterate) {
     table = ht_table_new(ht_hash_int32, ht_equal_int32);
 
     it = ht_table_iterate(table);
-    TEST_ASSERT(ht_table_iterator_get_next(it, &key, &value) == 0,
+    TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 0,
                 "next entry found in empty table");
     ht_table_iterator_delete(it);
 
@@ -289,7 +289,7 @@ TEST_DEFINE(iterate) {
     for (size_t i = 0; i < nb_values; i++) {
         bool found;
 
-        TEST_ASSERT(ht_table_iterator_get_next(it, &key, &value) == 1,
+        TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 1,
                     "next entry not found by iterator");
 
         found = false;
@@ -313,7 +313,7 @@ TEST_DEFINE(iterate) {
                     "entry was not encountered during iteration");
     }
 
-    TEST_ASSERT(ht_table_iterator_get_next(it, &key, &value) == 0,
+    TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 0,
                 "next entry found by iterator");
 
     ht_table_iterator_delete(it);
@@ -336,7 +336,7 @@ TEST_DEFINE(iterate_operations) {
 
     it = ht_table_iterate(table);
 
-    while (ht_table_iterator_get_next(it, &key, &value)) {
+    while (ht_table_iterator_next(it, &key, &value)) {
         if (strcmp(key, "d") == 0) {
             ht_table_iterator_remove(it);
         } else if (strcmp(key, "g") == 0) {

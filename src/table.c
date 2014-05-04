@@ -58,8 +58,8 @@ static int ht_table_insert_in(struct ht_table *table,
                               struct ht_table_bucket *buckets, size_t sz,
                               void *key, void *value, uint32_t hash,
                               bool is_resizing);
-static struct ht_table_entry *ht_table_get_entry(struct ht_table *table,
-                                                 const void *key);
+static struct ht_table_entry *ht_table_entry(struct ht_table *table,
+                                             const void *key);
 
 
 struct ht_table *
@@ -104,7 +104,7 @@ ht_table_delete(struct ht_table *table) {
 }
 
 size_t
-ht_table_get_nb_entries(const struct ht_table *table) {
+ht_table_nb_entries(const struct ht_table *table) {
     return table->nb_entries;
 }
 
@@ -155,7 +155,7 @@ ht_table_insert2(struct ht_table *table, void *key, void *value,
                  void **old_key, void **old_value) {
     struct ht_table_entry *entry;
 
-    entry = ht_table_get_entry(table, key);
+    entry = ht_table_entry(table, key);
     if (entry) {
         if (old_key)
             *old_key = entry->key;
@@ -186,7 +186,7 @@ ht_table_remove2(struct ht_table *table, const void *key,
                  void **old_key, void **old_value) {
     struct ht_table_entry *entry;
 
-    entry = ht_table_get_entry(table, key);
+    entry = ht_table_entry(table, key);
     if (!entry)
         return 0;
 
@@ -212,7 +212,7 @@ int
 ht_table_get(struct ht_table *table, const void *key, void **value) {
     struct ht_table_entry *entry;
 
-    entry = ht_table_get_entry(table, key);
+    entry = ht_table_entry(table, key);
     if (!entry)
         return 0;
 
@@ -222,7 +222,7 @@ ht_table_get(struct ht_table *table, const void *key, void **value) {
 
 bool
 ht_table_contains(struct ht_table *table, const void *key) {
-    return ht_table_get_entry(table, key) != NULL;
+    return ht_table_entry(table, key) != NULL;
 }
 
 struct ht_table_iterator *
@@ -252,8 +252,8 @@ ht_table_iterator_delete(struct ht_table_iterator *it) {
 }
 
 int
-ht_table_iterator_get_next(struct ht_table_iterator *it,
-                           void **key, void **value) {
+ht_table_iterator_next(struct ht_table_iterator *it,
+                       void **key, void **value) {
     if (it->bucket == SIZE_MAX) {
         it->bucket = 0;
         it->entry = 0;
@@ -368,7 +368,7 @@ ht_equal_string(const void *k1, const void *k2) {
 }
 
 static struct ht_table_entry *
-ht_table_get_entry(struct ht_table *table, const void *key) {
+ht_table_entry(struct ht_table *table, const void *key) {
     struct ht_table_bucket *bucket;
     uint32_t hash;
 
