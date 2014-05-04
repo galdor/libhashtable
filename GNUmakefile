@@ -55,7 +55,7 @@ $(tests_BIN): CFLAGS+= -D_GNU_SOURCE
 $(tests_BIN): CFLAGS+= `pkg-config --cflags glib-2.0`
 $(tests_BIN): LDFLAGS+= -L.
 $(tests_BIN): LDFLAGS+= `pkg-config --libs-only-L glib-2.0`
-$(tests_BIN): LDLIBS+= -lrt -lhashtable
+$(tests_BIN): LDLIBS+= -lrt -lhashtable -lutest
 $(tests_BIN): LDLIBS+= `pkg-config --libs-only-l glib-2.0`
 
 # Target: doc

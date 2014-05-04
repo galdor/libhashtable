@@ -14,202 +14,112 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <errno.h>
-#include <inttypes.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <unistd.h>
+#include <utest.h>
 
 #include "hashtable.h"
 
-static void die(const char *, ...)
-    __attribute__((format(printf, 1, 2)));
-static void usage(const char *, int);
-
-#define TEST_DEFINE(name_) \
-    int test_case_##name_()
-
-#define TEST_SUCCEED() \
-    return 1
-
-#define TEST_FAIL(fmt_, ...)                  \
-    do {                                      \
-        fprintf(stderr, fmt_"\n", ##__VA_ARGS__); \
-        return 0;                             \
-    } while (0)
-
-#define TEST_ERROR(fmt_, ...)                 \
-    do {                                      \
-        fprintf(stderr, fmt_"\n", ##__VA_ARGS__); \
-        return -1;                            \
-    } while (0)
-
-#define TEST_ASSERT(cond_, fmt_, ...)                                     \
-    if (!(cond_)) {                                                       \
-        TEST_FAIL("assertion '" #cond_ "' failed: " fmt_, ##__VA_ARGS__); \
-    }
-
-
-TEST_DEFINE(insert) {
+TEST(insert) {
     struct ht_table *table;
     const char *str;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
 
-    TEST_ASSERT(ht_table_is_empty(table),
-                "a newly created table should be empty");
+    TEST_TRUE(ht_table_is_empty(table));
 
     ht_table_insert(table, "a", "abc");
-
-    TEST_ASSERT(ht_table_nb_entries(table) == 1,
-                "invalid number of entries after 1 insertion");
+    TEST_UINT_EQ(ht_table_nb_entries(table), 1);
 
     ht_table_insert(table, "d", "def");
     ht_table_insert(table, "g", "ghi");
-
-    TEST_ASSERT(ht_table_nb_entries(table) == 3,
-                "invalid number of entries after 3 insertions");
-
-    TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
-                "cannot fetch entry 'a'");
-    TEST_ASSERT(strcmp(str, "abc") == 0,
-                "invalid value for entry 'a'");
-
-    TEST_ASSERT(ht_table_get(table, "g", (void **)&str) == 1,
-                "cannot fetch element");
-    TEST_ASSERT(strcmp(str, "ghi") == 0,
-                "invalid value for entry 'g'");
+    TEST_UINT_EQ(ht_table_nb_entries(table), 3);
+    TEST_INT_EQ(ht_table_get(table, "a", (void **)&str), 1);
+    TEST_STRING_EQ(str, "abc");
+    TEST_INT_EQ(ht_table_get(table, "g", (void **)&str), 1);
+    TEST_STRING_EQ(str, "ghi");
 
     ht_table_insert(table, "g", "foo");
+    TEST_UINT_EQ(ht_table_nb_entries(table), 3);
+    TEST_INT_EQ(ht_table_get(table, "g", (void **)&str), 1);
+    TEST_STRING_EQ(str, "foo");
 
-    TEST_ASSERT(ht_table_get(table, "g", (void **)&str) == 1,
-                "cannot fetch element");
-    TEST_ASSERT(strcmp(str, "foo") == 0,
-                "invalid value for entry 'g' after update");
-
-    TEST_ASSERT(ht_table_nb_entries(table) == 3,
-                "invalid number of entries after entry update");
-
-    TEST_ASSERT(ht_table_get(table, "k", (void **)&str) == 0,
-                "invalid return value when fetching an entry which does "
-                "not exist");
+    TEST_INT_EQ(ht_table_get(table, "k", (void **)&str), 0);
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(insert2) {
+TEST(insert2) {
     struct ht_table *table;
     const char *str, *key, *value;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
 
     ht_table_insert2(table, "a", "abc", (void **)&key, (void **)&value);
-    TEST_ASSERT(key == NULL,
-                "invalid old key for entry 'a'");
-    TEST_ASSERT(value == NULL,
-                "invalid old value for entry 'a'");
-
-    TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
-                "cannot fetch entry 'a'");
-    TEST_ASSERT(strcmp(str, "abc") == 0,
-                "invalid value for entry 'a'");
+    TEST_INT_EQ(ht_table_get(table, "a", (void **)&str), 1);
+    TEST_STRING_EQ(str, "abc");
+    TEST_PTR_NULL(key);
+    TEST_PTR_NULL(value);
 
     ht_table_insert2(table, "a", "def", (void **)&key, (void **)&value);
-
-    TEST_ASSERT(ht_table_get(table, "a", (void **)&str) == 1,
-                "cannot fetch entry 'a'");
-    TEST_ASSERT(strcmp(str, "def") == 0,
-                "invalid value for entry 'a'");
-    TEST_ASSERT(strcmp(key, "a") == 0,
-                "invalid old key for entry 'a'");
-    TEST_ASSERT(strcmp(value, "abc") == 0,
-                "invalid old value for entry 'a'");
+    TEST_INT_EQ(ht_table_get(table, "a", (void **)&str), 1);
+    TEST_STRING_EQ(str, "def");
+    TEST_STRING_EQ(key, "a");
+    TEST_STRING_EQ(value, "abc");
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(remove) {
+TEST(remove) {
     struct ht_table *table;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
-    if (!table)
-        TEST_ERROR("cannot create table: %s", ht_get_error());
-
-    TEST_ASSERT(ht_table_remove(table, "a") == 0,
-                "invalid return value when removing an entry which does "
-                "not exist");
+    TEST_INT_EQ(ht_table_remove(table, "a"), 0);
 
     ht_table_insert(table, "a", "abc");
+    TEST_TRUE(ht_table_contains(table, "a"));
     ht_table_remove(table, "a");
-
-    TEST_ASSERT(ht_table_is_empty(table),
-                "a table should be empty after the removal of its only entry");
+    TEST_FALSE(ht_table_contains(table, "a"));
+    TEST_INT_EQ(ht_table_remove(table, "a"), 0);
 
     ht_table_insert(table, "a", "abc");
     ht_table_insert(table, "d", "def");
     ht_table_insert(table, "g", "ghi");
-
-    TEST_ASSERT(ht_table_remove(table, "d") == 1,
-                "invalid return value when removing an existing entry");
-    TEST_ASSERT(ht_table_remove(table, "j") == 0,
-                "invalid return value when removing an entry that does"
-                "not exist");
+    TEST_TRUE(ht_table_contains(table, "a"));
+    TEST_FALSE(ht_table_contains(table, "j"));
+    TEST_INT_EQ(ht_table_remove(table, "d"), 1);
+    TEST_INT_EQ(ht_table_remove(table, "j"), 0);
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(remove2) {
+TEST(remove2) {
     struct ht_table *table;
     const char *key, *value;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
-    if (!table)
-        TEST_ERROR("cannot create table: %s", ht_get_error());
 
     ht_table_insert(table, "a", "abc");
-    TEST_ASSERT(ht_table_remove2(table, "a",
-                                 (void **)&key, (void **)&value) == 1,
-                "invalid return value when removing an existing entry");
-    TEST_ASSERT(strcmp(key, "a") == 0,
-                "invalid old key for entry 'a'");
-    TEST_ASSERT(strcmp(value, "abc") == 0,
-                "invalid old value for entry 'a'");
+    TEST_INT_EQ(ht_table_remove2(table, "a",
+                                 (void **)&key, (void **)&value), 1);
+    TEST_STRING_EQ(key, "a");
+    TEST_STRING_EQ(value, "abc");
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(clear) {
+TEST(clear) {
     struct ht_table *table;
 
     table = ht_table_new(ht_hash_string, ht_equal_string);
 
     ht_table_insert(table, "a", "abc");
-
     ht_table_clear(table);
-
-    TEST_ASSERT(ht_table_is_empty(table),
-                "a cleared table should be empty");
-
-    TEST_ASSERT(ht_table_contains(table, "a") == false,
-                "a cleared table should not contains any entry");
+    TEST_TRUE(ht_table_is_empty(table));
+    TEST_FALSE(ht_table_contains(table, "a"));
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(resize) {
+TEST(resize) {
     struct ht_table *table;
 
     size_t nb_entries = 100;
@@ -217,39 +127,29 @@ TEST_DEFINE(resize) {
 
     table = ht_table_new(ht_hash_int32, ht_equal_int32);
 
-    for (size_t i = 0; i < nb_entries; i++) {
-        ht_table_insert(table, HT_INT32_TO_POINTER(i),
-                        HT_INT32_TO_POINTER(1));
-    }
+    for (size_t i = 0; i < nb_entries; i++)
+        ht_table_insert(table, HT_INT32_TO_POINTER(i), HT_INT32_TO_POINTER(1));
 
-    for (size_t i = 0; i < nb_entries; i++) {
-        TEST_ASSERT(ht_table_contains(table, HT_INT32_TO_POINTER(i)),
-                    "entry %zu not found", i);
-    }
+    for (size_t i = 0; i < nb_entries; i++)
+        TEST_TRUE(ht_table_contains(table, HT_INT32_TO_POINTER(i)));
 
-    for (size_t i = 0; i < nb_removed; i++) {
+    for (size_t i = 0; i < nb_removed; i++)
         ht_table_remove(table, HT_INT32_TO_POINTER(i));
-    }
 
-    TEST_ASSERT(ht_table_nb_entries(table) == nb_entries - nb_removed,
-                "invalid number of entries after resize");
+    TEST_UINT_EQ(ht_table_nb_entries(table), nb_entries - nb_removed);
 
     for (size_t i = 0; i < nb_entries; i++) {
         if (i < nb_removed) {
-            TEST_ASSERT(!ht_table_contains(table, HT_INT32_TO_POINTER(i)),
-                        "removed entry %zu found", i);
+            TEST_FALSE(ht_table_contains(table, HT_INT32_TO_POINTER(i)));
         } else {
-            TEST_ASSERT(ht_table_contains(table, HT_INT32_TO_POINTER(i)),
-                        "entry %zu not found", i);
+            TEST_TRUE(ht_table_contains(table, HT_INT32_TO_POINTER(i)));
         }
     }
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(iterate) {
+TEST(iterate) {
     struct ht_table *table;
     struct ht_table_iterator *it;
     void *key, *value;
@@ -276,54 +176,45 @@ TEST_DEFINE(iterate) {
     table = ht_table_new(ht_hash_int32, ht_equal_int32);
 
     it = ht_table_iterate(table);
-    TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 0,
-                "next entry found in empty table");
+    TEST_INT_EQ(ht_table_iterator_next(it, &key, &value), 0);
     ht_table_iterator_delete(it);
 
-    for (size_t i = 0; i < nb_values; i++)
+    for (size_t i = 0; i < nb_values; i++) {
         ht_table_insert(table, HT_INT32_TO_POINTER(values[i].key),
                         values[i].value);
+    }
 
     it = ht_table_iterate(table);
 
     for (size_t i = 0; i < nb_values; i++) {
         bool found;
 
-        TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 1,
-                    "next entry not found by iterator");
+        TEST_INT_EQ(ht_table_iterator_next(it, &key, &value), 1);
 
         found = false;
         for (size_t i = 0; i < nb_values; i++) {
             if (HT_POINTER_TO_INT32(key) == values[i].key) {
                 found = true;
-                TEST_ASSERT(!values[i].found,
-                            "iterator returned the same entry two times");
-                TEST_ASSERT(strcmp(value, values[i].value) == 0,
-                            "invalid value returned by iterator");
+                TEST_FALSE(values[i].found);
+                TEST_INT_EQ(strcmp(value, values[i].value), 0);
                 values[i].found = true;
                 break;
             }
         }
 
-        TEST_ASSERT(found, "unknown key returned by iterator");
+        TEST_TRUE(found);
     }
 
-    for (size_t i = 0; i < nb_values; i++) {
-        TEST_ASSERT(values[i].found,
-                    "entry was not encountered during iteration");
-    }
+    for (size_t i = 0; i < nb_values; i++)
+        TEST_TRUE(values[i].found);
 
-    TEST_ASSERT(ht_table_iterator_next(it, &key, &value) == 0,
-                "next entry found by iterator");
+    TEST_INT_EQ(ht_table_iterator_next(it, &key, &value), 0);
 
     ht_table_iterator_delete(it);
-
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
 
-TEST_DEFINE(iterate_operations) {
+TEST(iterate_operations) {
     struct ht_table *table;
     struct ht_table_iterator *it;
     void *key, *value;
@@ -346,114 +237,31 @@ TEST_DEFINE(iterate_operations) {
 
     ht_table_iterator_delete(it);
 
-    TEST_ASSERT(ht_table_contains(table, "a"),
-                "entry not found");
-    TEST_ASSERT(!ht_table_contains(table, "d"),
-                "entry removed by iterator found");
-    TEST_ASSERT(ht_table_get(table, "g", &value) == 1,
-                "entry not found");
-    TEST_ASSERT(strcmp(value, "foo") == 0,
-                "invalid value after modification by iterator");
+    TEST_TRUE(ht_table_contains(table, "a"));
+    TEST_FALSE(ht_table_contains(table, "d"));
+    TEST_INT_EQ(ht_table_get(table, "g", &value), 1);
+    TEST_STRING_EQ(value, "foo");
 
     ht_table_delete(table);
-
-    TEST_SUCCEED();
 }
-
-
-#define TEST_CASE(name_) {.name = #name_, .test_func = test_case_##name_}
-
-static struct {
-    const char *name;
-    int (*test_func)();
-} test_cases[] = {
-    TEST_CASE(insert),
-    TEST_CASE(insert2),
-    TEST_CASE(remove),
-    TEST_CASE(remove2),
-    TEST_CASE(clear),
-    TEST_CASE(resize),
-    TEST_CASE(iterate),
-    TEST_CASE(iterate_operations),
-};
-
-#undef TEST_CASE
 
 int
 main(int argc, char **argv) {
-    size_t nb_tests, nb_passed;
-    const char *color_esc;
-    int opt;
+    struct test_suite *suite;
 
-    opterr = 0;
-    while ((opt = getopt(argc, argv, "hn:")) != -1) {
-        switch (opt) {
-            case 'h':
-                usage(argv[0], 0);
-                break;
+    suite = test_suite_new("hashtable");
+    test_suite_initialize_from_args(suite, argc, argv);
 
-            case '?':
-                usage(argv[0], 1);
-        }
-    }
+    test_suite_start(suite);
 
-    nb_tests = sizeof(test_cases) / sizeof(test_cases[0]);
-    nb_passed = 0;
+    TEST_RUN(suite, insert);
+    TEST_RUN(suite, insert2);
+    TEST_RUN(suite, remove);
+    TEST_RUN(suite, remove2);
+    TEST_RUN(suite, clear);
+    TEST_RUN(suite, resize);
+    TEST_RUN(suite, iterate);
+    TEST_RUN(suite, iterate_operations);
 
-    for (size_t i = 0; i < nb_tests; i++) {
-        int ret;
-
-        printf("\e[34m---- %-30s ----\e[0m\n", test_cases[i].name);
-
-        ret = test_cases[i].test_func();
-
-        if (ret == -1) {
-            printf("\e[31;1merror\e[0m\n");
-        } else if (ret == 0) {
-            printf("\e[31mfailure\e[0m\n");
-        } else {
-            printf("\e[32mok\e[0m\n");
-            nb_passed++;
-        }
-    }
-
-    printf("\e[34m----------------------------------------\e[0m\n");
-
-    if (nb_passed == 0) {
-        color_esc = "\e[31m";
-    } else if (nb_passed == nb_tests) {
-        color_esc = "\e[32m";
-    } else {
-        color_esc = "\e[33m";
-    }
-
-    printf("%s%zu/%zu tests passed (%.0f%%)\e[0m\n",
-           color_esc, nb_passed, nb_tests,
-           (double)nb_passed * 100.0 / nb_tests);
-
-    return (nb_passed == nb_tests) ? 0 : 1;
-}
-
-static void
-usage(const char *argv0, int exit_code) {
-    printf("Usage: %s [-hn]\n"
-            "\n"
-            "Options:\n"
-            "  -h         display help\n",
-            argv0);
-    exit(exit_code);
-}
-
-static void
-die(const char *fmt, ...) {
-    va_list ap;
-
-    fprintf(stderr, "fatal error: ");
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    putc('\n', stderr);
-    exit(1);
+    test_suite_print_results_and_exit(suite);
 }
