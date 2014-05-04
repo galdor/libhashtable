@@ -99,9 +99,9 @@ If `table` is null, no action is performed.
 The content of the memory referenced by `table` is undefined after
 `ht_table_delete` has been called.
 
-## `ht_table_get_nb_entries`
+## `ht_table_nb_entries`
 ~~~ {.c}
-    size_t ht_table_get_nb_entries(const struct ht_table *table);
+    size_t ht_table_nb_entries(const struct ht_table *table);
 ~~~
 
 Return the number of entries currently stored in a hash table.
@@ -242,10 +242,10 @@ If `it` is null, no action is performed.
 The content of the memory referenced by `it` is undefined after
 `ht_table_iterator_delete` has been called.
 
-## `ht_table_iterator_get_next`
+## `ht_table_iterator_next`
 ~~~ {.c}
-    int ht_table_iterator_get_next(struct ht_table_iterator *it,
-                                   void **key, void **value);
+    int ht_table_iterator_next(struct ht_table_iterator *it,
+                               void **key, void **value);
 ~~~
 
 Advance an iterator. If a next entry is found in the hash table, copy its key
