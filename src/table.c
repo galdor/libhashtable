@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils.h"
+#include "internal.h"
 #include "hashtable.h"
 
 #define HT_UNUSED_HASH 0

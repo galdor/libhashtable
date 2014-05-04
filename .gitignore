@@ -1,6 +1,9 @@
 *.a
 src/*.o
 
+session.vim
+.tags
+
 doc/*.html
 
 tests/bench-wordcount

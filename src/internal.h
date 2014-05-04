@@ -14,8 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef LIBHASHTABLE_UTILS_H
-#define LIBHASHTABLE_UTILS_H
+#ifndef LIBHASHTABLE_INTERNAL_H
+#define LIBHASHTABLE_INTERNAL_H
+
+#include <stdlib.h>
 
 void ht_set_error(const char *fmt, ...)
     __attribute__((format(printf, 1, 2)));
