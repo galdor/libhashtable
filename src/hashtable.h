@@ -36,6 +36,8 @@ extern struct ht_memory_allocator *ht_default_memory_allocator;
 typedef uint32_t (*ht_hash_func)(const void *);
 typedef bool (*ht_equal_func)(const void *, const void *);
 
+const char *ht_version(void);
+const char *ht_build_id(void);
 
 const char *ht_get_error(void);
 
