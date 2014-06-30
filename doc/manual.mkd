@@ -227,8 +227,12 @@ regarding the format of the output.
 Create and return an object used to iterate through the entries of a hash
 table.
 
-The iterator is valid as long as no entry is added or removed to the hash
+The iterator is valid as long as no entry is added to or removed from the hash
 table. The behavior of an iterator when it is not valid is undefined.
+
+If the library is built in debug mode, assertions will make sure that no
+element is added to or removed from the hash table while there exists an
+iterator associated with it.
 
 ## `ht_table_iterator_delete`
 ~~~ {.c}

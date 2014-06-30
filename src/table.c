@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -45,6 +46,8 @@ struct ht_table {
 
     ht_hash_func hash_func;
     ht_equal_func equal_func;
+
+    int nb_iterators;
 };
 
 struct ht_table_iterator {
@@ -92,6 +95,8 @@ ht_table_delete(struct ht_table *table) {
     if (!table)
         return;
 
+    assert(table->nb_iterators == 0);
+
     for (size_t i = 0; i < table->buckets_sz; i++)
         ht_free(table->buckets[i].entries);
 
@@ -113,6 +118,8 @@ ht_table_is_empty(const struct ht_table *table) {
 
 void
 ht_table_clear(struct ht_table *table) {
+    assert(table->nb_iterators == 0);
+
     for (size_t b = 0; b < table->buckets_sz; b++) {
         struct ht_table_bucket *bucket;
 
@@ -127,6 +134,8 @@ int
 ht_table_insert(struct ht_table *table, void *key, void *value) {
     uint32_t hash;
     int ret;
+
+    assert(table->nb_iterators == 0);
 
     if (table->nb_entries >= table->buckets_sz) {
         if (ht_table_resize(table, table->buckets_sz * 2) == -1)
@@ -153,6 +162,8 @@ ht_table_insert2(struct ht_table *table, void *key, void *value,
                  void **old_key, void **old_value) {
     struct ht_table_entry *entry;
 
+    assert(table->nb_iterators == 0);
+
     entry = ht_table_entry(table, key);
     if (entry) {
         if (old_key)
@@ -176,6 +187,8 @@ ht_table_insert2(struct ht_table *table, void *key, void *value,
 
 int
 ht_table_remove(struct ht_table *table, const void *key) {
+    assert(table->nb_iterators == 0);
+
     return ht_table_remove2(table, key, NULL, NULL);
 }
 
@@ -183,6 +196,8 @@ int
 ht_table_remove2(struct ht_table *table, const void *key,
                  void **old_key, void **old_value) {
     struct ht_table_entry *entry;
+
+    assert(table->nb_iterators == 0);
 
     entry = ht_table_entry(table, key);
     if (!entry)
@@ -237,6 +252,8 @@ ht_table_iterate(struct ht_table *table) {
     it->bucket = SIZE_MAX;
     it->entry = 0;
 
+    table->nb_iterators++;
+
     return it;
 }
 
@@ -244,6 +261,9 @@ void
 ht_table_iterator_delete(struct ht_table_iterator *it) {
     if (!it)
         return;
+
+    assert(it->table->nb_iterators > 0);
+    it->table->nb_iterators--;
 
     memset(it, 0, sizeof(struct ht_table_iterator));
     ht_free(it);
